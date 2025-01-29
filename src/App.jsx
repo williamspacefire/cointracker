@@ -8,23 +8,26 @@ import { CurrencyProvider } from './context/CurrencyContext'
 import { PriceProvider } from './context/PriceContext'
 import { ThemeProvider } from './context/ThemeContext'
 import ErrorBoundary from './components/ErrorBoundary'
+import { LanguageProvider } from './context/LanguageContext'
 
 export default function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider>
-        <CurrencyProvider>
-          <PriceProvider>
-            <Routes>
-              <Route path="/" element={<Layout />}>
-                <Route index element={<Home />} />
-                <Route path="/currency/:id" element={<CurrencyDetail />} />
-                <Route path="/calculator" element={<Calculator />} />
-              </Route>
-            </Routes>
-          </PriceProvider>
-        </CurrencyProvider>
-      </ThemeProvider>
+      <LanguageProvider>
+        <ThemeProvider>
+          <CurrencyProvider>
+            <PriceProvider>
+              <Routes>
+                <Route path="/" element={<Layout />}>
+                  <Route index element={<Home />} />
+                  <Route path="/currency/:id" element={<CurrencyDetail />} />
+                  <Route path="/calculator" element={<Calculator />} />
+                </Route>
+              </Routes>
+            </PriceProvider>
+          </CurrencyProvider>
+        </ThemeProvider>
+      </LanguageProvider>
     </ErrorBoundary>
   )
 }
