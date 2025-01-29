@@ -5,27 +5,28 @@ const coingeckoApi = axios.create({
   timeout: 10000,
 })
 
-// Add response interceptor for rate limit handling
-coingeckoApi.interceptors.response.use(null, async (error) => {
-  if (error.response?.status === 429) {
-    // Rate limit reached, wait for 60 seconds before retrying
-    await new Promise(resolve => setTimeout(resolve, 60000))
-    return coingeckoApi.request(error.config)
+// Simple cache implementation
+const cache = {
+  data: new Map(),
+  timestamps: new Map(),
+  set: function(key, value, ttl = 30000) {
+    this.data.set(key, JSON.parse(JSON.stringify(value))) // Ensure data is serializable
+    this.timestamps.set(key, Date.now() + ttl)
+  },
+  get: function(key) {
+    if (this.timestamps.get(key) > Date.now()) {
+      return this.data.get(key)
+    }
+    this.data.delete(key)
+    this.timestamps.delete(key)
+    return null
   }
-  return Promise.reject(error)
-})
-
-// Cache for storing API responses
-const cache = new Map()
+}
 
 export async function getCryptoPrices() {
   try {
-    // Check cache first
     const cachedData = cache.get('cryptoPrices')
-    const cacheAge = cache.get('cryptoPricesTimestamp')
-    const cacheIsValid = cacheAge && (Date.now() - cacheAge) < 30000 // 30 seconds cache
-
-    if (cachedData && cacheIsValid) {
+    if (cachedData) {
       return cachedData
     }
 
@@ -39,19 +40,13 @@ export async function getCryptoPrices() {
       }
     })
 
-    // Update cache
-    cache.set('cryptoPrices', data)
-    cache.set('cryptoPricesTimestamp', Date.now())
-
-    return data
+    // Ensure data is serializable before caching
+    const serializedData = JSON.parse(JSON.stringify(data))
+    cache.set('cryptoPrices', serializedData)
+    return serializedData
   } catch (error) {
-    console.error('API Error:', error)
-    // If cache exists but is expired, return it as fallback
-    const cachedData = cache.get('cryptoPrices')
-    if (cachedData) {
-      return cachedData
-    }
-    throw new Error(error.response?.data?.error || 'Failed to fetch crypto prices. Please try again later.')
+    console.error('API Error:', error.message)
+    throw new Error('Failed to fetch crypto prices. Please try again later.')
   }
 }
 
@@ -59,10 +54,7 @@ export async function getCryptoDetail(id) {
   try {
     const cacheKey = `cryptoDetail-${id}`
     const cachedData = cache.get(cacheKey)
-    const cacheAge = cache.get(`${cacheKey}-timestamp`)
-    const cacheIsValid = cacheAge && (Date.now() - cacheAge) < 60000 // 1 minute cache
-
-    if (cachedData && cacheIsValid) {
+    if (cachedData) {
       return cachedData
     }
 
@@ -75,16 +67,11 @@ export async function getCryptoDetail(id) {
       }
     })
 
-    cache.set(cacheKey, data)
-    cache.set(`${cacheKey}-timestamp`, Date.now())
-
-    return data
+    const serializedData = JSON.parse(JSON.stringify(data))
+    cache.set(cacheKey, serializedData, 60000) // 1 minute cache
+    return serializedData
   } catch (error) {
-    console.error('API Error:', error)
-    const cachedData = cache.get(`cryptoDetail-${id}`)
-    if (cachedData) {
-      return cachedData
-    }
+    console.error('API Error:', error.message)
     throw new Error('Failed to fetch crypto details. Please try again later.')
   }
 }
@@ -93,10 +80,7 @@ export async function getCryptoHistory(id) {
   try {
     const cacheKey = `cryptoHistory-${id}`
     const cachedData = cache.get(cacheKey)
-    const cacheAge = cache.get(`${cacheKey}-timestamp`)
-    const cacheIsValid = cacheAge && (Date.now() - cacheAge) < 300000 // 5 minutes cache
-
-    if (cachedData && cacheIsValid) {
+    if (cachedData) {
       return cachedData
     }
 
@@ -108,16 +92,11 @@ export async function getCryptoHistory(id) {
       }
     })
 
-    cache.set(cacheKey, data)
-    cache.set(`${cacheKey}-timestamp`, Date.now())
-
-    return data
+    const serializedData = JSON.parse(JSON.stringify(data))
+    cache.set(cacheKey, serializedData, 300000) // 5 minutes cache
+    return serializedData
   } catch (error) {
-    console.error('API Error:', error)
-    const cachedData = cache.get(`cryptoHistory-${id}`)
-    if (cachedData) {
-      return cachedData
-    }
+    console.error('API Error:', error.message)
     throw new Error('Failed to fetch price history. Please try again later.')
   }
 }
@@ -126,25 +105,17 @@ export async function getExchangeRates(base = 'USD') {
   try {
     const cacheKey = `exchangeRates-${base}`
     const cachedData = cache.get(cacheKey)
-    const cacheAge = cache.get(`${cacheKey}-timestamp`)
-    const cacheIsValid = cacheAge && (Date.now() - cacheAge) < 3600000 // 1 hour cache
-
-    if (cachedData && cacheIsValid) {
+    if (cachedData) {
       return cachedData
     }
 
     const { data } = await axios.get(`https://api.exchangerate-api.com/v4/latest/${base}`)
     
-    cache.set(cacheKey, data.rates)
-    cache.set(`${cacheKey}-timestamp`, Date.now())
-
-    return data.rates
+    const serializedData = JSON.parse(JSON.stringify(data.rates))
+    cache.set(cacheKey, serializedData, 3600000) // 1 hour cache
+    return serializedData
   } catch (error) {
-    console.error('API Error:', error)
-    const cachedData = cache.get(`exchangeRates-${base}`)
-    if (cachedData) {
-      return cachedData
-    }
+    console.error('API Error:', error.message)
     throw new Error('Failed to fetch exchange rates. Please try again later.')
   }
 }

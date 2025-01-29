@@ -7,6 +7,7 @@ import { usePrices } from '../context/PriceContext'
 import { formatCurrency } from '../utils/format'
 import LastUpdated from '../components/LastUpdated'
 import SparklineChart from '../components/SparklineChart'
+import CurrencyCalculator from '../components/CurrencyCalculator'
 
 export default function CurrencyDetail() {
   const { id } = useParams()
@@ -102,6 +103,8 @@ export default function CurrencyDetail() {
           />
         </div>
       </div>
+
+      {liveCurrency && <CurrencyCalculator selectedCurrency={liveCurrency} />}
 
       <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
         <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Additional Information</h2>
