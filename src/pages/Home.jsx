@@ -2,6 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { useCurrency } from '../context/CurrencyContext'
 import { usePrices } from '../context/PriceContext'
+import { useTranslation } from '../i18n/translations'
 import { formatCurrency } from '../utils/format'
 import SparklineChart from '../components/SparklineChart'
 import Hero from '../components/Hero'
@@ -10,16 +11,17 @@ import LastUpdated from '../components/LastUpdated'
 export default function Home() {
   const { baseCurrency } = useCurrency()
   const { prices: currencies, isLoading, error, lastUpdated } = usePrices()
+  const { t } = useTranslation()
 
   if (isLoading) return (
     <div className="flex justify-center items-center min-h-[200px]">
-      <div className="text-gray-600 dark:text-gray-400">Loading...</div>
+      <div className="text-gray-600 dark:text-gray-400">{t('common.loading')}</div>
     </div>
   )
   
   if (error) return (
     <div className="text-red-600 dark:text-red-400 p-4 bg-red-50 dark:bg-red-900/20 rounded">
-      Error: {error.message}
+      {t('common.error')} {error.message}
     </div>
   )
 
@@ -31,7 +33,9 @@ export default function Home() {
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Cryptocurrency Prices</h1>
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
+          {t('header.cryptoPrices')}
+        </h1>
         <LastUpdated timestamp={lastUpdated} />
       </div>
 
@@ -75,8 +79,8 @@ export default function Home() {
                   />
                 </div>
                 <div className="mt-2 flex justify-between text-sm text-gray-500 dark:text-gray-400">
-                  <span>Volume: {formatCurrency(currency.total_volume, baseCurrency)}</span>
-                  <span>Mkt Cap: {formatCurrency(currency.market_cap, baseCurrency)}</span>
+                  <span>{t('common.volume')}: {formatCurrency(currency.total_volume, baseCurrency)}</span>
+                  <span>{t('common.marketCap')}: {formatCurrency(currency.market_cap, baseCurrency)}</span>
                 </div>
               </div>
             </Link>

@@ -1,15 +1,18 @@
 import React from 'react'
 import { Link, Outlet } from 'react-router-dom'
 import { useCurrency } from '../context/CurrencyContext'
+import { useTranslation } from '../i18n/translations'
 import ThemeToggle from './ThemeToggle'
+import Footer from './Footer'
 
-const CURRENCIES = ['USD', 'EUR', 'GBP', 'JPY', 'AUD']
+const CURRENCIES = ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'BRL']
 
 export default function Layout() {
   const { baseCurrency, setBaseCurrency } = useCurrency()
+  const { t } = useTranslation()
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
       <nav className="bg-white dark:bg-gray-800 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
@@ -23,10 +26,7 @@ export default function Layout() {
                 CurrencyTracker
               </Link>
               <Link to="/calculator" className="flex items-center ml-4 px-2 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
-                <svg className="w-5 h-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V4a2 2 0 00-2-2H6zm1 2a1 1 0 000 2h6a1 1 0 100-2H7zm6 7a1 1 0 011 1v3a1 1 0 11-2 0v-3a1 1 0 011-1zm-3 1a1 1 0 00-1 1v2a1 1 0 102 0v-2a1 1 0 00-1-1zm-3 2a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1z" />
-                </svg>
-                Calculator
+                {t('header.calculator')}
               </Link>
             </div>
             <div className="flex items-center space-x-4">
@@ -44,9 +44,10 @@ export default function Layout() {
           </div>
         </div>
       </nav>
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Outlet />
       </main>
+      <Footer />
     </div>
   )
 }

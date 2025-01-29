@@ -1,9 +1,11 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { formatCurrency } from '../utils/format'
+import { useTranslation } from '../i18n/translations'
 import SparklineChart from './SparklineChart'
 
 export default function Hero({ currency, baseCurrency }) {
+  const { t } = useTranslation()
   const priceChange = currency.price_change_percentage_24h
   const isPositive = priceChange >= 0
 
@@ -12,7 +14,7 @@ export default function Hero({ currency, baseCurrency }) {
       <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-8 text-white">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-indigo-100">Best Performer (24h)</p>
+            <p className="text-indigo-100">{t('common.bestPerformer')}</p>
             <h1 className="text-4xl font-bold mt-2 flex items-center">
               <img src={currency.image} alt={currency.name} className="w-10 h-10 mr-3" />
               {currency.name}
@@ -32,19 +34,19 @@ export default function Hero({ currency, baseCurrency }) {
       <div className="p-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
-            <p className="text-gray-500 dark:text-gray-400 text-sm">Market Cap</p>
+            <p className="text-gray-500 dark:text-gray-400 text-sm">{t('common.marketCap')}</p>
             <p className="text-lg font-semibold text-gray-900 dark:text-white">
               {formatCurrency(currency.market_cap, baseCurrency)}
             </p>
           </div>
           <div>
-            <p className="text-gray-500 dark:text-gray-400 text-sm">24h Volume</p>
+            <p className="text-gray-500 dark:text-gray-400 text-sm">{t('common.volume')}</p>
             <p className="text-lg font-semibold text-gray-900 dark:text-white">
               {formatCurrency(currency.total_volume, baseCurrency)}
             </p>
           </div>
           <div>
-            <p className="text-gray-500 dark:text-gray-400 text-sm">Circulating Supply</p>
+            <p className="text-gray-500 dark:text-gray-400 text-sm">{t('common.circulatingSupply')}</p>
             <p className="text-lg font-semibold text-gray-900 dark:text-white">
               {currency.circulating_supply.toLocaleString()} {currency.symbol.toUpperCase()}
             </p>
@@ -64,7 +66,7 @@ export default function Hero({ currency, baseCurrency }) {
           to={`/currency/${currency.id}`}
           className="mt-6 block text-center bg-indigo-500 hover:bg-indigo-600 text-white font-semibold px-6 py-2 rounded-lg transition-colors"
         >
-          View Details
+          {t('common.viewDetails')}
         </Link>
       </div>
     </div>
