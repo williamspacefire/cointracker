@@ -26,6 +26,8 @@ export const translations = {
       circulatingSupply: 'Fornecimento Circulante',
       bestPerformer: 'Melhor Desempenho (24h)',
       quickConvert: 'Conversão Rápida',
+      searchPlaceholder: 'Pesquisar criptomoedas...',
+      noResults: 'Nenhum resultado encontrado',
     },
     header: {
       cryptoPrices: 'Preços das Criptomoedas',
