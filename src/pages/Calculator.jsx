@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useQuery } from 'react-query'
-import { getCryptoPrices, getExchangeRates } from '../api'
+import { getExchangeRates } from '../api'
+import { usePrices } from '../context/PriceContext'
+import LastUpdated from '../components/LastUpdated'
 
 export default function Calculator() {
   const [amount, setAmount] = useState('')
@@ -8,18 +10,17 @@ export default function Calculator() {
   const [toCurrency, setToCurrency] = useState('')
   const [result, setResult] = useState(null)
 
-  const { data: cryptoPrices, isLoading: isLoadingCrypto } = useQuery(
-    'cryptoPrices',
-    getCryptoPrices
-  )
+  const { prices: cryptoPrices, lastUpdated } = usePrices()
 
   const { data: fiatRates, isLoading: isLoadingFiat } = useQuery(
     'fiatRates',
     () => getExchangeRates()
   )
 
+  const isLoading = !cryptoPrices || isLoadingFiat
+
   useEffect(() => {
-    if (!amount || !fromCurrency || !toCurrency || isLoadingCrypto || isLoadingFiat) {
+    if (!amount || !fromCurrency || !toCurrency || isLoading) {
       setResult(null)
       return
     }
@@ -51,9 +52,9 @@ export default function Calculator() {
     }
 
     calculate()
-  }, [amount, fromCurrency, toCurrency, cryptoPrices, fiatRates, isLoadingCrypto, isLoadingFiat])
+  }, [amount, fromCurrency, toCurrency, cryptoPrices, fiatRates, isLoading, lastUpdated])
 
-  if (isLoadingCrypto || isLoadingFiat) {
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-[400px]">
         <div className="text-gray-600">Loading...</div>
@@ -70,65 +71,70 @@ export default function Calculator() {
   ]
 
   return (
-    <div className="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow">
-      <h1 className="text-2xl font-bold mb-6">Currency Calculator</h1>
-      
-      <div className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Amount</label>
-          <input
-            type="number"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-            placeholder="Enter amount"
-          />
-        </div>
+    <div className="max-w-2xl mx-auto">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold text-gray-800">Currency Calculator</h1>
+        <LastUpdated timestamp={lastUpdated} />
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="bg-white p-6 rounded-lg shadow">
+        <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">From</label>
-            <select
-              value={fromCurrency}
-              onChange={(e) => setFromCurrency(e.target.value)}
+            <label className="block text-sm font-medium text-gray-700">Amount</label>
+            <input
+              type="number"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-            >
-              <option value="">Select currency</option>
-              {currencies.map(currency => (
-                <option key={currency.id} value={currency.id}>
-                  {currency.name}
-                </option>
-              ))}
-            </select>
+              placeholder="Enter amount"
+            />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700">To</label>
-            <select
-              value={toCurrency}
-              onChange={(e) => setToCurrency(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-            >
-              <option value="">Select currency</option>
-              {currencies.map(currency => (
-                <option key={currency.id} value={currency.id}>
-                  {currency.name}
-                </option>
-              ))}
-            </select>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">From</label>
+              <select
+                value={fromCurrency}
+                onChange={(e) => setFromCurrency(e.target.value)}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              >
+                <option value="">Select currency</option>
+                {currencies.map(currency => (
+                  <option key={currency.id} value={currency.id}>
+                    {currency.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">To</label>
+              <select
+                value={toCurrency}
+                onChange={(e) => setToCurrency(e.target.value)}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              >
+                <option value="">Select currency</option>
+                {currencies.map(currency => (
+                  <option key={currency.id} value={currency.id}>
+                    {currency.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
+
+          {result !== null && (
+            <div className="mt-6 p-4 bg-gray-50 rounded-md">
+              <p className="text-lg">
+                {amount} {fromCurrency.replace('crypto_', '').toUpperCase()} =
+              </p>
+              <p className="text-3xl font-bold">
+                {result.toFixed(8)} {toCurrency.replace('crypto_', '').toUpperCase()}
+              </p>
+            </div>
+          )}
         </div>
-
-        {result !== null && (
-          <div className="mt-6 p-4 bg-gray-50 rounded-md">
-            <p className="text-lg">
-              {amount} {fromCurrency.replace('crypto_', '').toUpperCase()} =
-            </p>
-            <p className="text-3xl font-bold">
-              {result.toFixed(8)} {toCurrency.replace('crypto_', '').toUpperCase()}
-            </p>
-          </div>
-        )}
       </div>
     </div>
   )

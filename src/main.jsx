@@ -8,9 +8,13 @@ import './index.css'
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 30000,
+      staleTime: 10000,
       cacheTime: 3600000,
-      refetchInterval: 30000,
+      refetchInterval: 10000,
+      retry: false,
+      onError: (error) => {
+        console.error('Query Error:', error.message)
+      }
     },
   },
 })
