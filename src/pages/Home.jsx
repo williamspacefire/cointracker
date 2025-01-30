@@ -72,7 +72,7 @@ export default function Home() {
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">
                   {formatCurrency(currency.current_price, baseCurrency)}
                 </p>
-                <div className="mt-2 -mx-2">
+                <div className="h-20 mt-2">
                   <SparklineChart 
                     data={currency.sparkline_in_7d.price} 
                     color={chartColor}
