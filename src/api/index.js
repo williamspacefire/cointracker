@@ -2,7 +2,7 @@ import axios from 'axios'
 
 const coingeckoApi = axios.create({
   baseURL: 'https://api.coingecko.com/api/v3',
-  timeout: 10000,
+  timeout: 60000,
 })
 
 // Simple cache implementation
