@@ -1,14 +1,36 @@
 import React from 'react'
 import { format } from 'date-fns'
-import { useTranslation } from '../i18n/translations'
+import { useLanguage } from '../context/LanguageContext'
 
 export default function LastUpdated({ timestamp }) {
-  const { t } = useTranslation()
+  const { dictionary } = useLanguage()
   
-  return (
-    <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center">
-      <div className="w-2 h-2 rounded-full bg-green-500 mr-2 animate-pulse"></div>
-      {t('common.lastUpdated')} {format(timestamp, 'HH:mm:ss')}
-    </div>
-  )
+  console.log('Dictionary:', dictionary); // Debug log
+
+  if (!timestamp) {
+    return null;
+  }
+
+  try {
+    // Create date directly from ISO string
+    const date = new Date(timestamp);
+
+    // Validate the date
+    if (isNaN(date.getTime())) {
+      console.error('Invalid timestamp:', timestamp);
+      return null;
+    }
+
+    // Use optional chaining to prevent errors
+    const translatedText = dictionary?.common?.lastUpdated || 'Last updated';
+
+    return (
+      <div className="text-sm text-gray-500 dark:text-gray-400">
+        {translatedText}: {format(date, 'HH:mm:ss')}
+      </div>
+    );
+  } catch (error) {
+    console.error('Error in LastUpdated component:', error);
+    return null;
+  }
 }

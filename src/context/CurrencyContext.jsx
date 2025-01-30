@@ -1,14 +1,19 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import React, { createContext, useContext, useState, useEffect } from 'react'
 
 const CurrencyContext = createContext()
 
+const STORAGE_KEY = 'preferred_currency'
+
 export function CurrencyProvider({ children }) {
+  // Initialize state from localStorage, fallback to 'usd' if not found
   const [baseCurrency, setBaseCurrency] = useState(() => {
-    return localStorage.getItem('baseCurrency') || 'USD'
+    const savedCurrency = localStorage.getItem(STORAGE_KEY)
+    return savedCurrency || 'usd'
   })
 
+  // Save to localStorage whenever currency changes
   useEffect(() => {
-    localStorage.setItem('baseCurrency', baseCurrency)
+    localStorage.setItem(STORAGE_KEY, baseCurrency)
   }, [baseCurrency])
 
   return (
@@ -19,5 +24,9 @@ export function CurrencyProvider({ children }) {
 }
 
 export function useCurrency() {
-  return useContext(CurrencyContext)
+  const context = useContext(CurrencyContext)
+  if (!context) {
+    throw new Error('useCurrency must be used within a CurrencyProvider')
+  }
+  return context
 }

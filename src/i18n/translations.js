@@ -5,7 +5,7 @@ export const translations = {
     common: {
       loading: 'Loading...',
       error: 'Error:',
-      lastUpdated: 'Last updated:',
+      lastUpdated: 'Last updated',
       tryAgain: 'Please try again later',
       viewDetails: 'View Details',
       price: 'Price',
@@ -56,7 +56,7 @@ export const translations = {
     common: {
       loading: 'Cargando...',
       error: 'Error:',
-      lastUpdated: 'Última actualización:',
+      lastUpdated: 'Última actualización',
       tryAgain: 'Por favor intente nuevamente más tarde',
       viewDetails: 'Ver Detalles',
       price: 'Precio',
@@ -107,7 +107,7 @@ export const translations = {
     common: {
       loading: 'Carregando...',
       error: 'Erro:',
-      lastUpdated: 'Última atualização:',
+      lastUpdated: 'Última atualização',
       tryAgain: 'Tente novamente mais tarde',
       viewDetails: 'Ver detalhes',
       price: 'Preço',

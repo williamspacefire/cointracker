@@ -1,6 +1,6 @@
 import React from 'react'
 import { useParams } from 'react-router-dom'
-import { useQuery } from 'react-query'
+import { useQuery } from '@tanstack/react-query'
 import { getCryptoDetail, getCryptoHistory } from '../api'
 import { useCurrency } from '../context/CurrencyContext'
 import { usePrices } from '../context/PriceContext'
@@ -9,6 +9,8 @@ import { formatCurrency } from '../utils/format'
 import LastUpdated from '../components/LastUpdated'
 import SparklineChart from '../components/SparklineChart'
 import CurrencyCalculator from '../components/CurrencyCalculator'
+import CurrencyDetailSkeleton from '../components/CurrencyDetailSkeleton'
+import { getInitialData } from '../App'
 
 export default function CurrencyDetail() {
   const { id } = useParams()
@@ -16,36 +18,30 @@ export default function CurrencyDetail() {
   const { prices: liveData, lastUpdated } = usePrices()
   const { t } = useTranslation()
   
-  const { data: currency, isLoading: isLoadingCurrency } = useQuery(
-    ['cryptoDetail', id],
-    () => getCryptoDetail(id)
-  )
-  
-  const { data: history, isLoading: isLoadingHistory } = useQuery(
-    ['cryptoHistory', id],
-    () => getCryptoHistory(id)
-  )
+  const detailQueryKey = ['cryptoDetail', id, baseCurrency]
+  const historyQueryKey = ['cryptoHistory', id, baseCurrency]
+
+  const { data: crypto } = useQuery({
+    queryKey: detailQueryKey,
+    queryFn: () => getCryptoDetail(id, baseCurrency),
+    initialData: () => getInitialData(detailQueryKey)
+  })
+
+  const { data: history } = useQuery({
+    queryKey: historyQueryKey,
+    queryFn: () => getCryptoHistory(id, baseCurrency),
+    initialData: () => getInitialData(historyQueryKey)
+  })
 
   // Get live price data
   const liveCurrency = liveData?.find(c => c.id === id)
 
-  if (isLoadingCurrency || isLoadingHistory) {
-    return (
-      <div className="flex justify-center items-center min-h-[400px]">
-        <div className="text-gray-600 dark:text-gray-400">{t('common.loading')}</div>
-      </div>
-    )
+  // Show skeleton until we have both valid data sets
+  if (!crypto || !history || !crypto.id || !history.prices) {
+    return <CurrencyDetailSkeleton />
   }
 
-  if (!currency || !history) {
-    return (
-      <div className="text-red-600 dark:text-red-400 p-4 bg-red-50 dark:bg-red-900/20 rounded">
-        {t('common.error')} {t('common.tryAgain')}
-      </div>
-    )
-  }
-
-  const priceChange = liveCurrency?.price_change_percentage_24h || currency.market_data.price_change_percentage_24h
+  const priceChange = liveCurrency?.price_change_percentage_24h || crypto.market_data.price_change_percentage_24h
   const isPositive = priceChange >= 0
   const chartColor = isPositive ? '#16a34a' : '#dc2626'
 
@@ -53,17 +49,17 @@ export default function CurrencyDetail() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
-          {currency.name} {t('common.price')}
+          {crypto.name} {t('common.price')}
         </h1>
-        <LastUpdated timestamp={lastUpdated} />
+        <LastUpdated timestamp={crypto.last_updated} />
       </div>
 
       <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
         <div className="flex items-center mb-6">
-          <img src={currency.image.large} alt={currency.name} className="w-16 h-16 mr-4" />
+          <img src={crypto.image.large} alt={crypto.name} className="w-16 h-16 mr-4" />
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{currency.name}</h1>
-            <p className="text-gray-500 dark:text-gray-400">{currency.symbol.toUpperCase()}</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{crypto.name}</h1>
+            <p className="text-gray-500 dark:text-gray-400">{crypto.symbol.toUpperCase()}</p>
           </div>
         </div>
 
@@ -71,7 +67,7 @@ export default function CurrencyDetail() {
           <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded">
             <p className="text-gray-500 dark:text-gray-400">{t('common.price')}</p>
             <p className="text-2xl font-bold text-gray-900 dark:text-white">
-              {formatCurrency(liveCurrency?.current_price || currency.market_data.current_price.usd, baseCurrency)}
+              {formatCurrency(liveCurrency?.current_price || crypto.market_data.current_price.usd, baseCurrency)}
             </p>
           </div>
 
@@ -85,14 +81,14 @@ export default function CurrencyDetail() {
           <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded">
             <p className="text-gray-500 dark:text-gray-400">{t('common.marketCap')}</p>
             <p className="text-2xl font-bold text-gray-900 dark:text-white">
-              {formatCurrency(liveCurrency?.market_cap || currency.market_data.market_cap.usd, baseCurrency)}
+              {formatCurrency(liveCurrency?.market_cap || crypto.market_data.market_cap.usd, baseCurrency)}
             </p>
           </div>
 
           <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded">
             <p className="text-gray-500 dark:text-gray-400">{t('common.volume')}</p>
             <p className="text-2xl font-bold text-gray-900 dark:text-white">
-              {formatCurrency(liveCurrency?.total_volume || currency.market_data.total_volume.usd, baseCurrency)}
+              {formatCurrency(liveCurrency?.total_volume || crypto.market_data.total_volume.usd, baseCurrency)}
             </p>
           </div>
         </div>
@@ -120,27 +116,27 @@ export default function CurrencyDetail() {
           <div>
             <p className="text-gray-500 dark:text-gray-400">{t('common.circulatingSupply')}</p>
             <p className="text-lg font-semibold text-gray-900 dark:text-white">
-              {currency.market_data.circulating_supply.toLocaleString()} {currency.symbol.toUpperCase()}
+              {crypto.market_data.circulating_supply.toLocaleString()} {crypto.symbol.toUpperCase()}
             </p>
           </div>
           <div>
             <p className="text-gray-500 dark:text-gray-400">{t('common.maxSupply')}</p>
             <p className="text-lg font-semibold text-gray-900 dark:text-white">
-              {currency.market_data.max_supply ? 
-                `${currency.market_data.max_supply.toLocaleString()} ${currency.symbol.toUpperCase()}` : 
+              {crypto.market_data.max_supply ? 
+                `${crypto.market_data.max_supply.toLocaleString()} ${crypto.symbol.toUpperCase()}` : 
                 t('common.unlimited')}
             </p>
           </div>
           <div>
             <p className="text-gray-500 dark:text-gray-400">{t('common.allTimeHigh')}</p>
             <p className="text-lg font-semibold text-gray-900 dark:text-white">
-              {formatCurrency(currency.market_data.ath.usd, baseCurrency)}
+              {formatCurrency(crypto.market_data.ath.usd, baseCurrency)}
             </p>
           </div>
           <div>
             <p className="text-gray-500 dark:text-gray-400">{t('common.allTimeLow')}</p>
             <p className="text-lg font-semibold text-gray-900 dark:text-white">
-              {formatCurrency(currency.market_data.atl.usd, baseCurrency)}
+              {formatCurrency(crypto.market_data.atl.usd, baseCurrency)}
             </p>
           </div>
         </div>
