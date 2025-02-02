@@ -30,7 +30,12 @@ export const translations = {
       quickConvert: 'Quick Convert',
       searchPlaceholder: 'Search cryptocurrencies...',
       noResults: 'No results found',
-      language: 'Language'
+      language: 'Language',
+      todaysPrices: "Today's Cryptocurrency Prices by Market Cap",
+      globalMarketCap: "The global crypto market cap is",
+      increase: "increase",
+      decrease: "decrease",
+      overLastDay: "over the last day"
     },
     header: {
       cryptoPrices: 'Cryptocurrency Prices',
@@ -81,7 +86,12 @@ export const translations = {
       quickConvert: 'Conversión Rápida',
       searchPlaceholder: 'Buscar criptomonedas...',
       noResults: 'No se encontraron resultados',
-      language: 'Idioma'
+      language: 'Idioma',
+      todaysPrices: "Precios de Criptomonedas de Hoy por Capitalización de Mercado",
+      globalMarketCap: "La capitalización global del mercado cripto es",
+      increase: "incremento",
+      decrease: "disminución",
+      overLastDay: "durante el último día"
     },
     header: {
       cryptoPrices: 'Precios de Criptomonedas',
@@ -132,6 +142,11 @@ export const translations = {
       quickConvert: 'Conversão Rápida',
       searchPlaceholder: 'Pesquisar criptomoedas...',
       noResults: 'Nenhum resultado encontrado',
+      todaysPrices: "Preços das Criptomoedas Hoje por Capitalização de Mercado",
+      globalMarketCap: "A capitalização global do mercado cripto é",
+      increase: "aumento",
+      decrease: "diminuição",
+      overLastDay: "nas últimas 24 horas"
     },
     header: {
       cryptoPrices: 'Preços das Criptomoedas',

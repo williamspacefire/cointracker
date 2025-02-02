@@ -10,10 +10,12 @@ import Hero from '../components/Hero'
 import LastUpdated from '../components/LastUpdated'
 import CurrencySkeleton from '../components/CurrencySkeleton'
 import { getInitialData } from '../App'
+import { useLanguage } from '../context/LanguageContext'
 
 export default function Home() {
   const { baseCurrency } = useCurrency()
   const { t } = useTranslation()
+  const { translations } = useLanguage()
   
   const queryKey = ['prices', baseCurrency]
   
@@ -22,6 +24,10 @@ export default function Home() {
     queryFn: () => getCryptoPrices(baseCurrency),
     initialData: () => getInitialData(queryKey)
   })
+
+  // Calculate total market cap and 24h change
+  const totalMarketCap = prices?.reduce((sum, crypto) => sum + (crypto.market_cap || 0), 0) || 0
+  const marketCapChange24h = prices?.[0]?.market_cap_change_percentage_24h || 0
 
   // Show skeleton until we have valid data
   if (!prices || prices.length === 0) {
@@ -41,10 +47,30 @@ export default function Home() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
-          {t('header.cryptoPrices')}
+      <div className="mb-8">
+        <h1 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+          {t('common.todaysPrices')}
         </h1>
+        <p className="text-gray-600 dark:text-gray-400">
+          {t('common.globalMarketCap')}{' '}
+          <span className="font-medium text-gray-900 dark:text-white">
+            {totalMarketCap.toLocaleString(undefined, {
+              style: 'currency',
+              currency: baseCurrency.toUpperCase(),
+              maximumFractionDigits: 0
+            })}
+          </span>
+          ,{' '}
+          <span className={`font-medium ${
+            marketCapChange24h >= 0 
+              ? 'text-green-600 dark:text-green-400' 
+              : 'text-red-600 dark:text-red-400'
+          }`}>
+            {marketCapChange24h >= 0 ? '+' : ''}{marketCapChange24h.toFixed(2)}%
+          </span>{' '}
+          {marketCapChange24h >= 0 ? t('common.increase') : t('common.decrease')}{' '}
+          {t('common.overLastDay')}.
+        </p>
         <LastUpdated timestamp={new Date().toISOString()} />
       </div>
 
