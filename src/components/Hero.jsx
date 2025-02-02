@@ -49,7 +49,7 @@ export default function Hero({ currency, baseCurrency }) {
           <div>
             <p className="text-gray-500 dark:text-gray-400 text-sm">{t('common.circulatingSupply')}</p>
             <p className="text-lg font-semibold text-gray-900 dark:text-white">
-              {formatLargeNumber(currency.circulating_supply, currency.symbol.toUpperCase())}
+            {currency.circulating_supply.toLocaleString()} {currency.symbol.toUpperCase()}
             </p>
           </div>
         </div>
