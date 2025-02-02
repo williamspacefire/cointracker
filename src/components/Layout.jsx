@@ -113,8 +113,10 @@ export default function Layout() {
           )}
         </div>
       </nav>
-      <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Outlet />
+      <main className="flex-grow w-full">
+        <div className="md:max-w-7xl md:mx-auto px-2 md:px-4 sm:px-6 lg:px-8 py-8">
+          <Outlet />
+        </div>
       </main>
       <Footer />
     </div>
