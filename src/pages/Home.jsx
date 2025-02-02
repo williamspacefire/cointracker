@@ -11,41 +11,7 @@ import LastUpdated from '../components/LastUpdated'
 import CurrencySkeleton from '../components/CurrencySkeleton'
 import { getInitialData } from '../App'
 import { useLanguage } from '../context/LanguageContext'
-
-// Helper function to format large numbers
-const formatLargeNumber = (number, currency) => {
-  const trillion = 1e12;
-  const billion = 1e9;
-  const million = 1e6;
-
-  if (number >= trillion) {
-    return `${(number / trillion).toLocaleString(undefined, {
-      style: 'currency',
-      currency: currency,
-      maximumFractionDigits: 2,
-      minimumFractionDigits: 2
-    })} T`;
-  } else if (number >= billion) {
-    return `${(number / billion).toLocaleString(undefined, {
-      style: 'currency',
-      currency: currency,
-      maximumFractionDigits: 2,
-      minimumFractionDigits: 2
-    })} B`;
-  } else if (number >= million) {
-    return `${(number / million).toLocaleString(undefined, {
-      style: 'currency',
-      currency: currency,
-      maximumFractionDigits: 2,
-      minimumFractionDigits: 2
-    })} M`;
-  }
-  return number.toLocaleString(undefined, {
-    style: 'currency',
-    currency: currency,
-    maximumFractionDigits: 0
-  });
-};
+import { formatLargeNumber } from '../utils/formatters'
 
 export default function Home() {
   const { baseCurrency } = useCurrency()
@@ -149,7 +115,7 @@ export default function Home() {
 
               <div className="mt-4">
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {formatCurrency(currency.current_price, baseCurrency)}
+                  {formatLargeNumber(currency.current_price, baseCurrency.toUpperCase())}
                 </p>
                 <div className="h-20 mt-2">
                   <SparklineChart 
@@ -158,8 +124,8 @@ export default function Home() {
                   />
                 </div>
                 <div className="mt-2 flex justify-between text-sm text-gray-500 dark:text-gray-400">
-                  <span>{t('common.volume')}: {formatCurrency(currency.total_volume, baseCurrency)}</span>
-                  <span>{t('common.marketCap')}: {formatCurrency(currency.market_cap, baseCurrency)}</span>
+                  <span className="text-white">{t('common.volume')}: {formatLargeNumber(currency.total_volume, baseCurrency.toUpperCase())}</span>
+                  <span className="text-white">{t('common.marketCap')}: {formatLargeNumber(currency.market_cap, baseCurrency.toUpperCase())}</span>
                 </div>
               </div>
             </Link>
