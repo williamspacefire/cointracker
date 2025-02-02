@@ -2,14 +2,14 @@ import axios from 'axios'
 
 const coingeckoApi = axios.create({
   baseURL: 'https://api.coingecko.com/api/v3',
-  timeout: 60000,
+  timeout: 120000,
 })
 
 // Simple cache implementation
 const cache = {
   data: new Map(),
   timestamps: new Map(),
-  set: function(key, value, ttl = 30000) {
+  set: function(key, value, ttl = 100000) {
     this.data.set(key, JSON.parse(JSON.stringify(value))) // Ensure data is serializable
     this.timestamps.set(key, Date.now() + ttl)
   },
