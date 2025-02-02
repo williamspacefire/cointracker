@@ -29,6 +29,18 @@ export default function Home() {
   const totalMarketCap = prices?.reduce((sum, crypto) => sum + (crypto.market_cap || 0), 0) || 0
   const marketCapChange24h = prices?.[0]?.market_cap_change_percentage_24h || 0
 
+  const ArrowUpIcon = () => (
+    <svg className="inline-block w-5 h-5 mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 5L19 12L12 19M5 12H18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" transform="rotate(-90 12 12)"/>
+    </svg>
+  )
+
+  const ArrowDownIcon = () => (
+    <svg className="inline-block w-5 h-5 mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 5L19 12L12 19M5 12H18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" transform="rotate(90 12 12)"/>
+    </svg>
+  )
+
   // Show skeleton until we have valid data
   if (!prices || prices.length === 0) {
     return (
@@ -61,12 +73,13 @@ export default function Home() {
             })}
           </span>
           ,{' '}
-          <span className={`font-medium ${
+          <span className={`font-medium inline-flex items-center ${
             marketCapChange24h >= 0 
               ? 'text-green-600 dark:text-green-400' 
               : 'text-red-600 dark:text-red-400'
           }`}>
-            {marketCapChange24h >= 0 ? '+' : ''}{marketCapChange24h.toFixed(2)}%
+            {marketCapChange24h >= 0 ? <ArrowUpIcon /> : <ArrowDownIcon />}
+            {Math.abs(marketCapChange24h).toFixed(2)}%
           </span>{' '}
           {marketCapChange24h >= 0 ? t('common.increase') : t('common.decrease')}{' '}
           {t('common.overLastDay')}.
