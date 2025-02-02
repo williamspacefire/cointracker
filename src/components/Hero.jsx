@@ -1,6 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { formatLargeNumber } from '../utils/formatters'
+import { formatCurrency } from '../utils/format'
 import { useTranslation } from '../i18n/translations'
 import SparklineChart from './SparklineChart'
 
@@ -25,7 +26,7 @@ export default function Hero({ currency, baseCurrency }) {
               {priceChange.toFixed(2)}%
             </div>
             <p className="text-xl text-indigo-100 mt-1">
-              {formatLargeNumber(currency.current_price, baseCurrency.toUpperCase())}
+              {formatCurrency(currency.current_price, baseCurrency.toUpperCase())}
             </p>
           </div>
         </div>
@@ -48,7 +49,7 @@ export default function Hero({ currency, baseCurrency }) {
           <div>
             <p className="text-gray-500 dark:text-gray-400 text-sm">{t('common.circulatingSupply')}</p>
             <p className="text-lg font-semibold text-gray-900 dark:text-white">
-              {currency.circulating_supply.toLocaleString()} {currency.symbol.toUpperCase()}
+              {formatLargeNumber(currency.circulating_supply, currency.symbol.toUpperCase())}
             </p>
           </div>
         </div>

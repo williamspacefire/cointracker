@@ -115,7 +115,7 @@ export default function Home() {
 
               <div className="mt-4">
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {formatLargeNumber(currency.current_price, baseCurrency.toUpperCase())}
+                  {formatCurrency(currency.current_price, baseCurrency.toUpperCase())}
                 </p>
                 <div className="h-20 mt-2">
                   <SparklineChart 

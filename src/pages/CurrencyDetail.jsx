@@ -10,6 +10,7 @@ import LastUpdated from '../components/LastUpdated'
 import SparklineChart from '../components/SparklineChart'
 import CurrencyCalculator from '../components/CurrencyCalculator'
 import CurrencyDetailSkeleton from '../components/CurrencyDetailSkeleton'
+import { formatCurrency } from '../utils/format'
 import { getInitialData } from '../App'
 
 export default function CurrencyDetail() {
@@ -67,7 +68,7 @@ export default function CurrencyDetail() {
           <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded">
             <p className="text-gray-500 dark:text-gray-400">{t('common.price')}</p>
             <p className="text-2xl font-bold text-gray-900 dark:text-white">
-              {formatLargeNumber(liveCurrency?.current_price || crypto.market_data.current_price.usd, baseCurrency.toUpperCase())}
+              {formatCurrency(liveCurrency?.current_price || crypto.market_data.current_price.usd, baseCurrency.toUpperCase())}
             </p>
           </div>
 
