@@ -5,7 +5,7 @@ import { getCryptoDetail, getCryptoHistory } from '../api'
 import { useCurrency } from '../context/CurrencyContext'
 import { usePrices } from '../context/PriceContext'
 import { useTranslation } from '../i18n/translations'
-import { formatCurrency } from '../utils/format'
+import { formatLargeNumber } from '../utils/formatters'
 import LastUpdated from '../components/LastUpdated'
 import SparklineChart from '../components/SparklineChart'
 import CurrencyCalculator from '../components/CurrencyCalculator'
@@ -67,7 +67,7 @@ export default function CurrencyDetail() {
           <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded">
             <p className="text-gray-500 dark:text-gray-400">{t('common.price')}</p>
             <p className="text-2xl font-bold text-gray-900 dark:text-white">
-              {formatCurrency(liveCurrency?.current_price || crypto.market_data.current_price.usd, baseCurrency)}
+              {formatLargeNumber(liveCurrency?.current_price || crypto.market_data.current_price.usd, baseCurrency.toUpperCase())}
             </p>
           </div>
 
@@ -81,14 +81,14 @@ export default function CurrencyDetail() {
           <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded">
             <p className="text-gray-500 dark:text-gray-400">{t('common.marketCap')}</p>
             <p className="text-2xl font-bold text-gray-900 dark:text-white">
-              {formatCurrency(liveCurrency?.market_cap || crypto.market_data.market_cap.usd, baseCurrency)}
+              {formatLargeNumber(liveCurrency?.market_cap || crypto.market_data.market_cap.usd, baseCurrency.toUpperCase())}
             </p>
           </div>
 
           <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded">
             <p className="text-gray-500 dark:text-gray-400">{t('common.volume')}</p>
             <p className="text-2xl font-bold text-gray-900 dark:text-white">
-              {formatCurrency(liveCurrency?.total_volume || crypto.market_data.total_volume.usd, baseCurrency)}
+              {formatLargeNumber(liveCurrency?.total_volume || crypto.market_data.total_volume.usd, baseCurrency.toUpperCase())}
             </p>
           </div>
         </div>
@@ -130,13 +130,13 @@ export default function CurrencyDetail() {
           <div>
             <p className="text-gray-500 dark:text-gray-400">{t('common.allTimeHigh')}</p>
             <p className="text-lg font-semibold text-gray-900 dark:text-white">
-              {formatCurrency(crypto.market_data.ath.usd, baseCurrency)}
+              {formatLargeNumber(crypto.market_data.ath.usd, baseCurrency.toUpperCase())}
             </p>
           </div>
           <div>
             <p className="text-gray-500 dark:text-gray-400">{t('common.allTimeLow')}</p>
             <p className="text-lg font-semibold text-gray-900 dark:text-white">
-              {formatCurrency(crypto.market_data.atl.usd, baseCurrency)}
+              {formatLargeNumber(crypto.market_data.atl.usd, baseCurrency.toUpperCase())}
             </p>
           </div>
         </div>
