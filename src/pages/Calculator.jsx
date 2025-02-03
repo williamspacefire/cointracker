@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react'
-import { useQuery } from 'react-query'
+import React, { useEffect } from 'react'
+import { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { getExchangeRates } from '../api'
 import { usePrices } from '../context/PriceContext'
 import LastUpdated from '../components/LastUpdated'
@@ -12,11 +13,7 @@ export default function Calculator() {
 
   const { prices: cryptoPrices, lastUpdated } = usePrices()
 
-  const { data: fiatRates, isLoading: isLoadingFiat } = useQuery(
-    'fiatRates',
-    () => getExchangeRates()
-  )
-
+  const { data: fiatRates, isLoading: isLoadingFiat } = useQuery('fiatRates', getExchangeRates)
   const isLoading = !cryptoPrices || isLoadingFiat
 
   useEffect(() => {
@@ -29,26 +26,22 @@ export default function Calculator() {
       let fromRate = 1
       let toRate = 1
 
-      // Get rates for the 'from' currency
+      // Determine conversion rate based on whether it is crypto or fiat
       if (fromCurrency.startsWith('crypto_')) {
-        const cryptoId = fromCurrency.replace('crypto_', '')
-        const crypto = cryptoPrices.find(c => c.id === cryptoId)
+        const crypto = cryptoPrices.find(c => c.id === fromCurrency.replace('crypto_', ''))
         fromRate = crypto?.current_price || 0
       } else {
         fromRate = 1 / (fiatRates[fromCurrency] || 1)
       }
 
-      // Get rates for the 'to' currency
       if (toCurrency.startsWith('crypto_')) {
-        const cryptoId = toCurrency.replace('crypto_', '')
-        const crypto = cryptoPrices.find(c => c.id === cryptoId)
+        const crypto = cryptoPrices.find(c => c.id === toCurrency.replace('crypto_', ''))
         toRate = crypto?.current_price || 0
       } else {
         toRate = 1 / (fiatRates[toCurrency] || 1)
       }
 
-      const calculatedResult = (amount * fromRate) / toRate
-      setResult(calculatedResult)
+      setResult((amount * fromRate) / toRate)
     }
 
     calculate()
@@ -62,6 +55,7 @@ export default function Calculator() {
     )
   }
 
+  // Combine crypto and fiat currencies for selection
   const currencies = [
     ...Object.keys(fiatRates).map(code => ({ id: code, name: code })),
     ...cryptoPrices.map(crypto => ({ 

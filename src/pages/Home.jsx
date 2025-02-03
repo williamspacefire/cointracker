@@ -13,6 +13,19 @@ import { getInitialData } from '../App'
 import { useLanguage } from '../context/LanguageContext'
 import { formatLargeNumber } from '../utils/formatters'
 
+// Moved outside to avoid re-declaration on every render
+const ArrowUpIcon = () => (
+  <svg className="inline-block w-5 h-5 mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 5L19 12L12 19M5 12H18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" transform="rotate(-90 12 12)"/>
+  </svg>
+)
+
+const ArrowDownIcon = () => (
+  <svg className="inline-block w-5 h-5 mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 5L19 12L12 19M5 12H18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" transform="rotate(90 12 12)"/>
+  </svg>
+)
+
 export default function Home() {
   const { baseCurrency } = useCurrency()
   const { t } = useTranslation()
@@ -30,18 +43,6 @@ export default function Home() {
   const totalMarketCap = prices?.reduce((sum, crypto) => sum + (crypto.market_cap || 0), 0) || 0
   const marketCapChange24h = prices?.[0]?.market_cap_change_percentage_24h || 0
 
-  const ArrowUpIcon = () => (
-    <svg className="inline-block w-5 h-5 mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M12 5L19 12L12 19M5 12H18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" transform="rotate(-90 12 12)"/>
-    </svg>
-  )
-
-  const ArrowDownIcon = () => (
-    <svg className="inline-block w-5 h-5 mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M12 5L19 12L12 19M5 12H18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" transform="rotate(90 12 12)"/>
-    </svg>
-  )
-
   // Show skeleton until we have valid data
   if (!prices || prices.length === 0) {
     return (
@@ -52,11 +53,6 @@ export default function Home() {
       </div>
     )
   }
-
-  // Find the best performing currency
-  const bestPerformer = [...prices].sort(
-    (a, b) => b.price_change_percentage_24h - a.price_change_percentage_24h
-  )[0]
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -69,7 +65,7 @@ export default function Home() {
           <span className="font-medium text-gray-900 dark:text-white">
             {formatLargeNumber(totalMarketCap, baseCurrency.toUpperCase())}
           </span>
-          ,{' '}
+          {' '}
           <span className={`font-medium inline-flex items-center ${
             marketCapChange24h >= 0 
               ? 'text-green-600 dark:text-green-400' 
@@ -77,60 +73,83 @@ export default function Home() {
           }`}>
             {marketCapChange24h >= 0 ? <ArrowUpIcon /> : <ArrowDownIcon />}
             {Math.abs(marketCapChange24h).toFixed(2)}%
-          </span>{' '}
+          </span>
+          {' '}
           {marketCapChange24h >= 0 ? t('common.increase') : t('common.decrease')}{' '}
           {t('common.overLastDay')}.
         </p>
         <LastUpdated timestamp={new Date().toISOString()} />
       </div>
 
-      <Hero currency={bestPerformer} baseCurrency={baseCurrency} />
-      
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {prices?.map(currency => {
-          if (currency.id === bestPerformer.id) return null
+      <div className="overflow-x-auto">
+        <table className="min-w-full">
+          <thead>
+            <tr className="text-left text-sm text-gray-500 dark:text-gray-400">
+              <th className="py-3 px-4">#</th>
+              <th className="py-3 px-4">{t('common.coin')}</th>
+              <th className="py-3 px-4">{t('common.price')}</th>
+              <th className="py-3 px-4">1h</th>
+              <th className="py-3 px-4">24h</th>
+              <th className="py-3 px-4">7d</th>
+              <th className="py-3 px-4">{t('common.volume')}</th>
+              <th className="py-3 px-4">{t('common.marketCap')}</th>
+              <th className="py-3 px-4">{t('common.last7Days')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {prices?.map((currency, index) => {
+              const {
+                price_change_percentage_24h_in_currency: priceChange = 0,
+                price_change_percentage_1h_in_currency: hourChange = 0,
+                price_change_percentage_7d_in_currency: weekChange = 0,
+              } = currency
+              const isPositive = priceChange >= 0
+              const chartColor = isPositive ? '#16a34a' : '#dc2626'
 
-          const priceChange = currency.price_change_percentage_24h
-          const isPositive = priceChange >= 0
-          const chartColor = isPositive ? '#16a34a' : '#dc2626'
-
-          return (
-            <Link
-              key={currency.id}
-              to={`/currency/${currency.id}`}
-              className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow hover:shadow-md transition-shadow"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <img src={currency.image} alt={currency.name} className="w-8 h-8 mr-2" />
-                  <div>
-                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{currency.name}</h2>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">{currency.symbol.toUpperCase()}</p>
-                  </div>
-                </div>
-                <div className={`text-sm font-semibold ${isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                  {priceChange.toFixed(2)}%
-                </div>
-              </div>
-
-              <div className="mt-4">
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {formatCurrency(currency.current_price, baseCurrency.toUpperCase())}
-                </p>
-                <div className="h-20 mt-2">
-                  <SparklineChart 
-                    data={currency.sparkline_in_7d.price} 
-                    color={chartColor}
-                  />
-                </div>
-                <div className="mt-2 flex justify-between text-sm text-gray-500 dark:text-gray-400">
-                  <span className="text-white">{t('common.volume')}: {formatLargeNumber(currency.total_volume, baseCurrency.toUpperCase())}</span>
-                  <span className="text-white">{t('common.marketCap')}: {formatLargeNumber(currency.market_cap, baseCurrency.toUpperCase())}</span>
-                </div>
-              </div>
-            </Link>
-          )
-        })}
+              return (
+                <tr 
+                  key={currency.id}
+                  className="border-t border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
+                >
+                  <td className="py-4 px-4 text-black dark:text-white">{index + 1}</td>
+                  <td className="py-4 px-4">
+                    <Link to={`/currency/${currency.id}`} className="flex items-center">
+                      <img src={currency.image} alt={currency.name} className="w-6 h-6 mr-2" />
+                      <span className="font-medium text-gray-900 dark:text-white">{currency.name}</span>
+                      <span className="text-gray-500 dark:text-gray-400 ml-2">{currency.symbol.toUpperCase()}</span>
+                    </Link>
+                  </td>
+                  <td className="py-4 px-4 font-medium text-gray-900 dark:text-white">
+                    {formatCurrency(currency.current_price, baseCurrency.toUpperCase())}
+                  </td>
+                  <td className={`py-4 px-4 ${hourChange >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                    {hourChange.toFixed(1)}%
+                  </td>
+                  <td className={`py-4 px-4 ${isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                    {priceChange.toFixed(1)}%
+                  </td>
+                  <td className={`py-4 px-4 ${weekChange >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                    {weekChange.toFixed(1)}%
+                  </td>
+                  <td className="py-4 px-4 text-gray-900 dark:text-white">
+                    {formatLargeNumber(currency.total_volume, baseCurrency.toUpperCase())}
+                  </td>
+                  <td className="py-4 px-4 text-gray-900 dark:text-white">
+                    {formatLargeNumber(currency.market_cap, baseCurrency.toUpperCase())}
+                  </td>
+                  <td className="py-4 px-4 w-[200px]">
+                    <div className="h-[50px]">
+                      <SparklineChart 
+                        data={currency.sparkline_in_7d.price}
+                        color={chartColor}
+                      />
+                    </div>
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
       </div>
     </div>
   )

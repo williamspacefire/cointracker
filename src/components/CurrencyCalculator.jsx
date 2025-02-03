@@ -1,32 +1,25 @@
-import React, { useState, useEffect } from 'react'
+import React, { useMemo, useState } from 'react'
 import { usePrices } from '../context/PriceContext'
-import { formatCurrency } from '../utils/format'
 import { useTranslation } from '../i18n/translations'
+import { formatCurrency } from '../utils/format'
 
 export default function CurrencyCalculator({ selectedCurrency }) {
   const [amount, setAmount] = useState('1')
-  const [result, setResult] = useState(null)
   const { prices: currencies } = usePrices()
   const { t } = useTranslation()
 
-  useEffect(() => {
-    if (!amount || !selectedCurrency || !currencies) return
+  // Calculate conversion results using useMemo so it re-computes only on dependency changes
+  const result = useMemo(() => {
+    if (!amount || !selectedCurrency || !currencies) return null
+    const numAmount = parseFloat(amount)
+    if (isNaN(numAmount)) return null
 
-    const calculateResult = () => {
-      const numAmount = parseFloat(amount)
-      if (isNaN(numAmount)) return
-
-      const results = currencies.map(currency => ({
-        symbol: currency.symbol.toUpperCase(),
-        name: currency.name,
-        value: (numAmount * selectedCurrency.current_price) / currency.current_price,
-        price: currency.current_price
-      }))
-
-      setResult(results)
-    }
-
-    calculateResult()
+    return currencies.map(currency => ({
+      symbol: currency.symbol.toUpperCase(),
+      name: currency.name,
+      value: (numAmount * selectedCurrency.current_price) / currency.current_price,
+      price: currency.current_price
+    }))
   }, [amount, selectedCurrency, currencies])
 
   return (
@@ -56,15 +49,11 @@ export default function CurrencyCalculator({ selectedCurrency }) {
           </div>
         </div>
       </div>
-
       {result && (
         <div className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {result.slice(0, 6).map((item) => (
-              <div 
-                key={item.symbol}
-                className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg"
-              >
+            {result.slice(0, 6).map(item => (
+              <div key={item.symbol} className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
                 <div className="text-sm text-gray-500 dark:text-gray-400">{item.name}</div>
                 <div className="text-lg font-semibold text-gray-900 dark:text-white">
                   {item.value.toFixed(8)} {item.symbol}

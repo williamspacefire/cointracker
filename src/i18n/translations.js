@@ -35,7 +35,9 @@ export const translations = {
       globalMarketCap: "The global crypto market cap is",
       increase: "increase",
       decrease: "decrease",
-      overLastDay: "over the last day"
+      overLastDay: "over the last day",
+      coin: 'Coin',
+      last7Days: 'Last 7 Days',
     },
     header: {
       cryptoPrices: 'Cryptocurrency Prices',
@@ -91,7 +93,9 @@ export const translations = {
       globalMarketCap: "La capitalización global del mercado cripto es",
       increase: "incremento",
       decrease: "disminución",
-      overLastDay: "durante el último día"
+      overLastDay: "durante el último día",
+      coin: 'Moneda',
+      last7Days: 'Últimos 7 días',
     },
     header: {
       cryptoPrices: 'Precios de Criptomonedas',
@@ -146,7 +150,9 @@ export const translations = {
       globalMarketCap: "A capitalização global do mercado cripto é",
       increase: "aumento",
       decrease: "diminuição",
-      overLastDay: "nas últimas 24 horas"
+      overLastDay: "nas últimas 24 horas",
+      coin: 'Moeda',
+      last7Days: 'Últimos 7 dias',
     },
     header: {
       cryptoPrices: 'Preços das Criptomoedas',

@@ -7,7 +7,7 @@ import SparklineChart from './SparklineChart'
 
 export default function Hero({ currency, baseCurrency }) {
   const { t } = useTranslation()
-  const priceChange = currency.price_change_percentage_24h
+  const priceChange = currency.price_change_percentage_24h_in_currency ?? currency.price_change_percentage_24h
   const isPositive = priceChange >= 0
 
   return (
