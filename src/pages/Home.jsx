@@ -81,6 +81,55 @@ export default function Home() {
         <LastUpdated timestamp={new Date().toISOString()} />
       </div>
 
+      {/* Add Market Overview Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        {/* Market Cap Card */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+          <div className="flex flex-col">
+            <span className="text-2xl font-bold text-gray-900 dark:text-white">
+              {formatLargeNumber(totalMarketCap, baseCurrency.toUpperCase())}
+            </span>
+            <div className="flex items-center mt-1">
+              <span className="text-gray-500 dark:text-gray-400">Market Cap</span>
+              <span className={`ml-2 ${
+                marketCapChange24h >= 0 
+                  ? 'text-green-600 dark:text-green-400' 
+                  : 'text-red-600 dark:text-red-400'
+              }`}>
+                {marketCapChange24h >= 0 ? '↑' : '↓'} {Math.abs(marketCapChange24h).toFixed(1)}%
+              </span>
+            </div>
+          </div>
+          <div className="h-16 mt-4">
+            <SparklineChart 
+              data={prices?.[0]?.sparkline_in_7d?.price || []}
+              color={marketCapChange24h >= 0 ? '#22c55e' : '#ef4444'}
+            />
+          </div>
+        </div>
+
+        {/* 24h Trading Volume Card */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+          <div className="flex flex-col">
+            <span className="text-2xl font-bold text-gray-900 dark:text-white">
+              {formatLargeNumber(
+                prices?.reduce((sum, crypto) => sum + (crypto.total_volume || 0), 0) || 0,
+                baseCurrency.toUpperCase()
+              )}
+            </span>
+            <div className="flex items-center mt-1">
+              <span className="text-gray-500 dark:text-gray-400">24h Trading Volume</span>
+            </div>
+          </div>
+          <div className="h-16 mt-4">
+            <SparklineChart 
+              data={prices?.map(p => p.total_volume) || []}
+              color="#22c55e"
+            />
+          </div>
+        </div>
+      </div>
+
       <div className="overflow-x-auto">
         <table className="min-w-full">
           <thead>
